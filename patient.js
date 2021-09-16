@@ -1,38 +1,43 @@
+const kidneysInStock = 5
 
-export  function Patient(){
-      let data=[{
-        firstName:'tumzied',
-        lastName:'Abdur rahman',
-        id:5,
-        assignedDoctorID:5,
-        patientType:'inpatient',
-        admitted:true,
-        diseases:['COVID'],
-        requires:[],
-        donors:['kidny']
-    },
-    {
-        firstName:'',
-        lastName:'',
-        id:2,
-        assignedDoctorID:1,
-        patientType:'patient',
-        admitted:false,
-        diseases:[],
-        requires:['kidny'],
-        donors:[]
-
-    },
-    
-
-];
+ export default function Patient(){
+      let data=[
+        {
+          firstName: "Shakira",
+          lastName: "Hossain",
+          patientID: "007",
+          diseases: ["COVID", "1-kidney", "3/4-dissolved-brain"],
+          isAdmitted: true,
+        },
+        {
+          firstName: "Uzumaki",
+          lastName: "Naruto",
+          patientID: "008",
+          diseases: ["Obesity"],
+          isAdmitted: true,
+        },
+        {
+          firstName: "Sheikh",
+          lastName: "Selim Ahmed",
+          patientID: "006",
+          diseases: ["Broken heart", "Depression"],
+          isAdmitted: true,
+        },
+        {
+          firstName: "Rafsan",
+          lastName: "Wayne",
+          patientID: "009",
+          diseases: ["COVID", "1-kidney", "Impaired vision"],
+          isAdmitted: false,
+        },
+      ];
 
     /**
      * 
      * list of patients sort by there ID
      */
     this.listOfPatient=()=>{
-        return [...data.sort((p1,p2)=>p1.id<p2.id?-1:1)]
+        return [...data.sort((p1,p2)=>p1.patientID<p2.patientID?-1:1)]
     }
 
     
@@ -49,7 +54,7 @@ export  function Patient(){
 
             let setAdmitted=true;
                                                     //  get patient admitted.
-            setAdmitted=patient.admitted===false?data[idx]={... data[idx],admitted:true }:false;
+            setAdmitted=patient.isAdmitted===false?data[idx]={... data[idx],isAdmitted:true }:false;
             return setAdmitted;
                 
         
@@ -59,17 +64,27 @@ export  function Patient(){
    
     /**
     * 
-    * @returns list of patient who required kidny
+    * @returns {Array} : list of patient who required kidny
     * 
     */
     this.listOfPatientRequireKidnys=()=>{
 
         return data.filter((patient)=>{
-            return patient.requires.find(r=>r=='kidny')!=undefined?true:false;
+            return patient.diseases.find(disease=>{
+                //return only matched world or null 
+                return disease.match(/(kidney)/g)!=null?true:false;
+            
+            })!=undefined?true:false;
         });
     }
 
     // find the number of patients we need to finish the kidney stock
+
+    this.numberOfPatientToFinishKidneyStock=()=>{
+
+        return kidneysInStock-this.listOfPatientRequireKidnys().length
+
+    }
 
 
    
@@ -80,7 +95,7 @@ export  function Patient(){
     this.dispalyCovidPatient=()=>{
 
         data.forEach((patient)=>{
-            let isCovidPatient= patient.diseases.find(r=>r=='COVID')!=undefined?true:false;
+            let isCovidPatient= patient.diseases.find(disease=>disease=='COVID')!=undefined?true:false;
             isCovidPatient?console.log(`${patient.lastName},${patient.firstName} ${patient.diseases.length} ${patient.diseases.length>1?'disease':'diseases'}`):null
         })
 
@@ -90,7 +105,14 @@ export  function Patient(){
      * @param {Array} patientList 
      */
     this.addData=(patientList)=>{
-        data=[...data,...patientList];
+
+        let maxpatientIdx=this.getmaxIndex()+1;
+
+        // 
+        data=[...data,...patientList.map((p,idx)=>{
+            return { ...p, patientID:(new Array(3).join('0') + (maxpatientIdx + idx )).substr(-3), isAdmitted: true} 
+
+        })];
     }
     /**
      * 
@@ -98,10 +120,10 @@ export  function Patient(){
      */
     this.getmaxIndex=()=>{
 
-        let maxidx=data[0].id;
+        let maxidx=parseInt(data[0].patientID);
         data.forEach(p=>{
 
-            maxidx=maxidx<p.id?p.id:maxidx;
+            maxidx=maxidx<parseInt(p.patientID)?parseInt(p.patientID):maxidx;
         });
         return maxidx
     }
@@ -126,6 +148,8 @@ console.log(p.listOfPatient())
 
 console.log('list of Not Addmitted Patient');
 console.log(p.listofNotAddmittedPatient())
+console.log('number Of Patient To Finish Kidney Stock');
+console.log(   p.numberOfPatientToFinishKidneyStock())
 
 console.log('list Of Patient Require Kidnys');
 console.log(p.listOfPatientRequireKidnys())
